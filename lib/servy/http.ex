@@ -1,5 +1,15 @@
 defmodule Servy.Http do
 
+  def parse(request) do
+    [method, path, _] =
+      request
+      |> String.split("\n")
+      |> List.first()
+      |> String.split(" ")
+
+    %{method: method, path: path, status_code: nil, resp_body: ""}
+  end
+
   def format_response(conv) do
     """
     HTTP/1.1 #{conv.status_code} #{reason_phrase(conv.status_code)}

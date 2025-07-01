@@ -5,22 +5,12 @@ defmodule Servy.Handler do
 
   def handle(request) do
     request
-    |> parse
+    |> Servy.Http.parse
     |> Servy.Plugins.rewrite_path
     |> Servy.Plugins.log
     |> route
     |> Servy.Plugins.track
     |> Servy.Http.format_response
-  end
-
-  defp parse(request) do
-    [method, path, _] =
-      request
-      |> String.split("\n")
-      |> List.first()
-      |> String.split(" ")
-
-    %{method: method, path: path, status_code: nil, resp_body: ""}
   end
 
   defp route(%{method: "GET", path: "/wildthings"} = conv) do
