@@ -1,5 +1,5 @@
 defmodule Servy.Conv do
-  defstruct method: "", path: "", resp_body: "", status_code: nil
+  defstruct method: "", path: "", resp_body: "", status_code: nil, request_body: nil, request_headers: nil
 
   def parse(request) do
     [top, request_body] = request |> String.split("\n\n")
@@ -7,13 +7,26 @@ defmodule Servy.Conv do
     [method, path, _] = request_line |> String.split(" ")
 
     headers = parse_headers(header_lines)
-    %Servy.Conv{method: method, path: path, status_code: nil, resp_body: ""}
+    request_body = parse_request_body(request_body)
+
+    %Servy.Conv{
+      method: method,
+      path: path,
+      status_code: nil,
+      request_headers: headers,
+      request_body: request_body,
+      resp_body: ""
+    }
+  end
+
+  def parse_request_body(request_body) do
+    request_body |> String.trim() |> URI.decode_query()
   end
 
   def parse_headers(header_lines) do
     Enum.reduce(header_lines, %{}, fn header_line, acc ->
-      [key, value] = header_line |> String.split(": ", parts: 2)
-      Map.put(acc, String.downcase(key), value)
+      [key, value] = header_line |> String.split(":", parts: 2)
+      Map.put(acc, String.downcase(key), String.trim(value))
     end)
   end
 
