@@ -1,13 +1,15 @@
 defmodule Servy.Handler do
   require Logger
 
+  @pages_path Path.expand("../../pages", __DIR__)
+
   def handle(request) do
     request
     |> parse
-    |> rewrite_path
-    |> log
+    |> Servy.Plugins.rewrite_path
+    |> Servy.Plugins.log
     |> route
-    |> track
+    |> Servy.Plugins.track
     |> format_response
   end
 
@@ -21,21 +23,6 @@ defmodule Servy.Handler do
     %{method: method, path: path, status_code: nil, resp_body: ""}
   end
 
-  defp rewrite_path(%{path: "/wildlife"} = conv) do
-    %{conv | path: "/wildthings"}
-  end
-
-  defp rewrite_path(%{path: "/bears?id=" <> id} = conv) do
-    %{conv | path: "/bears/#{id}"}
-  end
-
-  defp rewrite_path(conv), do: conv
-
-  defp log(conv) do
-    Logger.info(conv)
-    conv
-  end
-
   defp route(%{method: "GET", path: "/wildthings"} = conv) do
     %{conv | resp_body: "Bears, Lions, Tigers", status_code: 200}
   end
@@ -45,8 +32,7 @@ defmodule Servy.Handler do
   end
 
   defp route(%{method: "GET", path: "/bears/new"} = conv) do
-    Path.expand("../../pages/bears", __DIR__)
-    |> Path.join("new.html")
+    Path.join(@pages_path, "bears/new.html")
     |> File.read()
     |> case do
       {:ok, form} ->
@@ -56,7 +42,7 @@ defmodule Servy.Handler do
         %{ conv | resp_body: "File not found", status_code: 404 }
       {:error, reason} ->
         Logger.error("Error reading file: #{reason}")
-        %{ conv | resp_body: "File not found", status_code: 500 }
+        %{ conv | resp_body: "Server Error #{reason}", status_code: 500 }
     end
   end
 
@@ -64,19 +50,15 @@ defmodule Servy.Handler do
     %{conv | resp_body: "Bear #{id}", status_code: 200}
   end
 
-  defp route(%{method: "GET", path: "/about"} = conv) do
-    Path.expand("../../pages", __DIR__)
-    |> Path.join("about.html")
-    |> File.read()
-    |> handle_file(conv)
-  end
-
   defp route(%{method: "DELETE", path: "/bears/" <> _id} = conv) do
     %{conv | resp_body: "Bears must never be deleted!", status_code: 403}
   end
 
-  defp route(%{path: path} = conv) do
-    %{conv | resp_body: "No #{path}!", status_code: 404}
+  defp route(%{method: "GET", path: path} = conv) do
+    @pages_path
+    |> Path.join("#{path}.html")
+    |> File.read()
+    |> handle_file(conv)
   end
 
   defp handle_file({:ok, body}, conv) do
@@ -91,13 +73,6 @@ defmodule Servy.Handler do
     Logger.error("Error reading file: #{reason}")
     %{conv | resp_body: "File not found", status_code: 500}
   end
-
-  defp track(%{path: path, status_code: 404} = conv) do
-    Logger.warning("[Warning] #{path} is on the loose!")
-    conv
-  end
-
-  defp track(conv), do: conv
 
   defp format_response(conv) do
     """
@@ -115,5 +90,5 @@ defmodule Servy.Handler do
   defp reason_phrase(403), do: "Forbidden"
   defp reason_phrase(404), do: "Not Found"
   defp reason_phrase(500), do: "Internal Server Error"
-  defp reason_phrase(_), do: "Unknown Status"
+  defp reason_phrase(_SC), do: "Unknown Status"
 end
