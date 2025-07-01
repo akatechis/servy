@@ -1,27 +1,29 @@
 defmodule Servy.Handler do
   require Logger
+  alias Servy.Conv
+  import Servy.Plugins
 
   @pages_path Path.expand("../../pages", __DIR__)
 
   def handle(request) do
     request
-    |> Servy.Http.parse
-    |> Servy.Plugins.rewrite_path
-    |> Servy.Plugins.log
+    |> Conv.parse
+    |> rewrite_path
+    |> log
     |> route
-    |> Servy.Plugins.track
-    |> Servy.Http.format_response
+    |> track
+    |> Conv.format_response
   end
 
-  defp route(%{method: "GET", path: "/wildthings"} = conv) do
+  defp route(%Conv{method: "GET", path: "/wildthings"} = conv) do
     %{conv | resp_body: "Bears, Lions, Tigers", status_code: 200}
   end
 
-  defp route(%{method: "GET", path: "/bears"} = conv) do
+  defp route(%Conv{method: "GET", path: "/bears"} = conv) do
     %{conv | resp_body: "Teddy, Smokey, Paddington", status_code: 200}
   end
 
-  defp route(%{method: "GET", path: "/bears/new"} = conv) do
+  defp route(%Conv{method: "GET", path: "/bears/new"} = conv) do
     Path.join(@pages_path, "bears/new.html")
     |> File.read()
     |> case do
@@ -36,15 +38,20 @@ defmodule Servy.Handler do
     end
   end
 
-  defp route(%{method: "GET", path: "/bears/" <> id} = conv) do
+  defp route(%Conv{method: "GET", path: "/bears/" <> id} = conv) do
     %{conv | resp_body: "Bear #{id}", status_code: 200}
   end
 
-  defp route(%{method: "DELETE", path: "/bears/" <> _id} = conv) do
+  defp route(%Conv{method: "DELETE", path: "/bears/" <> _id} = conv) do
     %{conv | resp_body: "Bears must never be deleted!", status_code: 403}
   end
 
-  defp route(%{method: "GET", path: path} = conv) do
+  defp route(%Conv{method: "POST", path: "/bears"} = conv) do
+    params = %{ "name" => "Baloo", "type" => "Brown" }
+    %{conv | resp_body: "#{params["name"]} created!", status_code: 201}
+  end
+
+  defp route(%Conv{method: "GET", path: path} = conv) do
     @pages_path
     |> Path.join("#{path}.html")
     |> File.read()

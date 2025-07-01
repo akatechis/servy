@@ -111,4 +111,29 @@ defmodule ServyHandlerTest do
     """
     assert Servy.Handler.handle(request) =~ "<h1>Contact Us</h1>"
   end
+
+  test "responds 403 to DELETE /bears/{id}" do
+    request = """
+    DELETE /bears/7 HTTP/1.1
+    Host: example.com
+    User-Agent: ServyClient/1.0
+    Accept: */*
+
+    """
+    assert Servy.Handler.handle(request) =~ "403 Forbidden"
+  end
+
+  test "responds 200 to POST /bears" do
+    request = """
+    POST /bears HTTP/1.1
+    Host: example.com
+    User-Agent: ServyClient/1.0
+    Accept: */*
+    Content-Type: application/x-www-form-urlencoded
+    Content-Length: 21
+
+    name=Baloo&type=Brown
+    """
+    assert Servy.Handler.handle(request) =~ "Baloo created!"
+  end
 end
