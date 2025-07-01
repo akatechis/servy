@@ -8,7 +8,7 @@ defmodule ServyConvTest do
       "User-Agent: ServyClient/1.0",
       "Accept: */*",
       "Content-Type: application/x-www-form-urlencoded",
-      "Content-Length: 21",
+      "Content-Length: 21"
     ]
 
     headers = Servy.Conv.parse_headers(headers_lines)

@@ -7,12 +7,12 @@ defmodule Servy.Handler do
 
   def handle(request) do
     request
-    |> Conv.parse
+    |> Conv.parse()
     |> rewrite_path
     |> log
     |> route
     |> track
-    |> Conv.format_response
+    |> Conv.format_response()
   end
 
   defp route(%Conv{method: "GET", path: "/wildthings"} = conv) do
@@ -28,13 +28,15 @@ defmodule Servy.Handler do
     |> File.read()
     |> case do
       {:ok, form} ->
-        %{ conv | resp_body: form, status_code: 200 }
+        %{conv | resp_body: form, status_code: 200}
+
       {:error, :enoent} ->
         Logger.error("File not found")
-        %{ conv | resp_body: "File not found", status_code: 404 }
+        %{conv | resp_body: "File not found", status_code: 404}
+
       {:error, reason} ->
         Logger.error("Error reading file: #{reason}")
-        %{ conv | resp_body: "Server Error #{reason}", status_code: 500 }
+        %{conv | resp_body: "Server Error #{reason}", status_code: 500}
     end
   end
 
@@ -47,7 +49,7 @@ defmodule Servy.Handler do
   end
 
   defp route(%Conv{method: "POST", path: "/bears"} = conv) do
-    params = %{ "name" => "Baloo", "type" => "Brown" }
+    params = %{"name" => "Baloo", "type" => "Brown"}
     %{conv | resp_body: "#{params["name"]} created!", status_code: 201}
   end
 

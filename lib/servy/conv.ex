@@ -38,5 +38,4 @@ defmodule Servy.Conv do
   def reason_phrase(404), do: "Not Found"
   def reason_phrase(500), do: "Internal Server Error"
   def reason_phrase(_SC), do: "Unknown Status"
-
 end

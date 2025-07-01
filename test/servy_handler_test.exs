@@ -10,6 +10,7 @@ defmodule ServyHandlerTest do
     Accept: */*
 
     """
+
     assert Servy.Handler.handle(request) =~ "Bears, Lions, Tigers"
   end
 
@@ -21,6 +22,7 @@ defmodule ServyHandlerTest do
     Accept: */*
 
     """
+
     assert Servy.Handler.handle(request) =~ "Teddy, Smokey, Paddington"
   end
 
@@ -32,6 +34,7 @@ defmodule ServyHandlerTest do
     Accept: */*
 
     """
+
     assert Servy.Handler.handle(request) =~ "404 Not Found"
   end
 
@@ -43,6 +46,7 @@ defmodule ServyHandlerTest do
     Accept: */*
 
     """
+
     assert Servy.Handler.handle(request) =~ "Bear 1"
   end
 
@@ -54,6 +58,7 @@ defmodule ServyHandlerTest do
     Accept: */*
 
     """
+
     assert Servy.Handler.handle(request) =~ "Bears, Lions, Tigers"
   end
 
@@ -65,6 +70,7 @@ defmodule ServyHandlerTest do
     Accept: */*
 
     """
+
     assert Servy.Handler.handle(request) =~ "Bear 2"
   end
 
@@ -76,6 +82,7 @@ defmodule ServyHandlerTest do
     Accept: */*
 
     """
+
     assert Servy.Handler.handle(request) =~ "<h1>Clark's Wildthings Refuge</h1>"
   end
 
@@ -87,6 +94,7 @@ defmodule ServyHandlerTest do
     Accept: */*
 
     """
+
     assert Servy.Handler.handle(request) =~ "<h1>Create a new bear</h1>"
   end
 
@@ -98,6 +106,7 @@ defmodule ServyHandlerTest do
     Accept: */*
 
     """
+
     assert Servy.Handler.handle(request) =~ "<h1>FAQ</h1>"
   end
 
@@ -109,6 +118,7 @@ defmodule ServyHandlerTest do
     Accept: */*
 
     """
+
     assert Servy.Handler.handle(request) =~ "<h1>Contact Us</h1>"
   end
 
@@ -120,6 +130,7 @@ defmodule ServyHandlerTest do
     Accept: */*
 
     """
+
     assert Servy.Handler.handle(request) =~ "403 Forbidden"
   end
 
@@ -134,6 +145,7 @@ defmodule ServyHandlerTest do
 
     name=Baloo&type=Brown
     """
+
     assert Servy.Handler.handle(request) =~ "Baloo created!"
   end
 end
