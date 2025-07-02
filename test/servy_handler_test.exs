@@ -143,9 +143,9 @@ defmodule ServyHandlerTest do
     Content-Type: application/x-www-form-urlencoded
     Content-Length: 21
 
-    name=Baloo&type=Brown
+    name=Wally&type=Polar
     """
 
-    assert Servy.Handler.handle(request) =~ "Baloo created!"
+    assert Servy.Handler.handle(request) =~ "Wally created!"
   end
 end

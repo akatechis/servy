@@ -6,8 +6,8 @@ defmodule Servy.Conv do
     [request_line | header_lines] = top |> String.split("\n")
     [method, path, _] = request_line |> String.split(" ")
 
-    headers = parse_headers(header_lines)
-    request_body = parse_request_body(request_body)
+    headers = parse_headers(header_lines, %{})
+    request_body = parse_request_body(headers["content-type"], request_body)
 
     %Servy.Conv{
       method: method,
@@ -19,16 +19,19 @@ defmodule Servy.Conv do
     }
   end
 
-  def parse_request_body(request_body) do
+  def parse_request_body("application/x-www-form-urlencoded", request_body) do
     request_body |> String.trim() |> URI.decode_query()
   end
 
-  def parse_headers(header_lines) do
-    Enum.reduce(header_lines, %{}, fn header_line, acc ->
-      [key, value] = header_line |> String.split(":", parts: 2)
-      Map.put(acc, String.downcase(key), String.trim(value))
-    end)
+  def parse_request_body(_, _), do: %{}
+
+  def parse_headers([header_line | tail], headers) do
+    [key, value] = header_line |> String.split(":", parts: 2)
+    headers = Map.put(headers, String.downcase(key), String.trim(value))
+    parse_headers(tail, headers)
   end
+
+  def parse_headers([], headers), do: headers
 
   def format_response(conv) do
     """

@@ -11,7 +11,7 @@ defmodule ServyConvTest do
       "Content-Length: 21"
     ]
 
-    headers = Servy.Conv.parse_headers(headers_lines)
+    headers = Servy.Conv.parse_headers(headers_lines, %{})
     assert map_size(headers) == 5
     assert headers["host"] == "example.com"
     assert headers["user-agent"] == "ServyClient/1.0"
@@ -22,7 +22,7 @@ defmodule ServyConvTest do
 
   test "properly parses request body" do
     request_body = "name=Baloo&type=Brown"
-    parsed_body = Servy.Conv.parse_request_body(request_body)
+    parsed_body = Servy.Conv.parse_request_body("application/x-www-form-urlencoded", request_body)
     assert parsed_body == %{"name" => "Baloo", "type" => "Brown"}
   end
 end

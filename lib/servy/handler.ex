@@ -49,8 +49,7 @@ defmodule Servy.Handler do
   end
 
   defp route(%Conv{method: "POST", path: "/bears"} = conv) do
-    params = %{"name" => "Baloo", "type" => "Brown"}
-    %{conv | resp_body: "#{params["name"]} created!", status_code: 201}
+    %{conv | resp_body: "#{conv.request_body["name"]} created!", status_code: 201}
   end
 
   defp route(%Conv{method: "GET", path: path} = conv) do
