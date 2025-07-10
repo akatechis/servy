@@ -6,7 +6,6 @@ defmodule ServyHandlerTest do
     request = """
     GET /wildthings HTTP/1.1
     Host: example.com
-    User-Agent: ServyClient/1.0
     Accept: */*
 
     """
@@ -18,19 +17,21 @@ defmodule ServyHandlerTest do
     request = """
     GET /bears HTTP/1.1
     Host: example.com
-    User-Agent: ServyClient/1.0
     Accept: */*
 
     """
 
-    assert Servy.Handler.handle(request) =~ "Teddy, Smokey, Paddington"
+    response = Servy.Handler.handle(request)
+
+    assert response =~ "<li>Brutus (Grizzly)</li>"
+    assert response =~ "<li>Kenai (Grizzly)</li>"
+    assert response =~ "<li>Scarface (Grizzly)</li>"
   end
 
   test "responds 404 to GET /bigfoot" do
     request = """
     GET /bigfoot HTTP/1.1
     Host: example.com
-    User-Agent: ServyClient/1.0
     Accept: */*
 
     """
@@ -42,19 +43,17 @@ defmodule ServyHandlerTest do
     request = """
     GET /bears/1 HTTP/1.1
     Host: example.com
-    User-Agent: ServyClient/1.0
     Accept: */*
 
     """
 
-    assert Servy.Handler.handle(request) =~ "Bear 1"
+    assert Servy.Handler.handle(request) =~ "Is Teddy hibernating? <strong>true</strong>"
   end
 
   test "responds 200 to GET /wildlife" do
     request = """
     GET /wildlife HTTP/1.1
     Host: example.com
-    User-Agent: ServyClient/1.0
     Accept: */*
 
     """
@@ -66,19 +65,17 @@ defmodule ServyHandlerTest do
     request = """
     GET /bears?id=2 HTTP/1.1
     Host: example.com
-    User-Agent: ServyClient/1.0
     Accept: */*
 
     """
 
-    assert Servy.Handler.handle(request) =~ "Bear 2"
+    assert Servy.Handler.handle(request) =~ "Is Smokey hibernating? <strong>false</strong>"
   end
 
   test "responds 200 to GET /about" do
     request = """
     GET /about HTTP/1.1
     Host: example.com
-    User-Agent: ServyClient/1.0
     Accept: */*
 
     """
@@ -90,7 +87,6 @@ defmodule ServyHandlerTest do
     request = """
     GET /bears/new HTTP/1.1
     Host: example.com
-    User-Agent: ServyClient/1.0
     Accept: */*
 
     """
@@ -102,7 +98,6 @@ defmodule ServyHandlerTest do
     request = """
     GET /faq HTTP/1.1
     Host: example.com
-    User-Agent: ServyClient/1.0
     Accept: */*
 
     """
@@ -114,7 +109,6 @@ defmodule ServyHandlerTest do
     request = """
     GET /contact HTTP/1.1
     Host: example.com
-    User-Agent: ServyClient/1.0
     Accept: */*
 
     """
@@ -126,7 +120,6 @@ defmodule ServyHandlerTest do
     request = """
     DELETE /bears/7 HTTP/1.1
     Host: example.com
-    User-Agent: ServyClient/1.0
     Accept: */*
 
     """
@@ -138,7 +131,6 @@ defmodule ServyHandlerTest do
     request = """
     POST /bears HTTP/1.1
     Host: example.com
-    User-Agent: ServyClient/1.0
     Accept: */*
     Content-Type: application/x-www-form-urlencoded
     Content-Length: 21
@@ -147,5 +139,20 @@ defmodule ServyHandlerTest do
     """
 
     assert Servy.Handler.handle(request) =~ "Wally created!"
+  end
+
+  test "responds 200 to GET /api/bears" do
+    request = """
+    GET /api/bears HTTP/1.1
+    Host: example.com
+    Accept: */*
+
+    """
+
+    response = Servy.Handler.handle(request)
+
+    assert response =~ "content-type: application/json"
+    assert response =~ "content-length: 605"
+    assert response =~ "[{\"hibernating\":true,\"type\":\"Brown\",\"name\":\"Teddy\",\"id\":1},{\"hibernating\":false,\"type\":\"Black\",\"name\":\"Smokey\",\"id\":2},{\"hibernating\":false,\"type\":\"Brown\",\"name\":\"Paddington\",\"id\":3},{\"hibernating\":true,\"type\":\"Grizzly\",\"name\":\"Scarface\",\"id\":4},{\"hibernating\":false,\"type\":\"Polar\",\"name\":\"Snow\",\"id\":5},{\"hibernating\":false,\"type\":\"Grizzly\",\"name\":\"Brutus\",\"id\":6},{\"hibernating\":true,\"type\":\"Black\",\"name\":\"Rosie\",\"id\":7},{\"hibernating\":false,\"type\":\"Brown\",\"name\":\"Roscoe\",\"id\":8},{\"hibernating\":true,\"type\":\"Polar\",\"name\":\"Iceman\",\"id\":9},{\"hibernating\":false,\"type\":\"Grizzly\",\"name\":\"Kenai\",\"id\":10}]"
   end
 end

@@ -1,6 +1,7 @@
 defmodule Servy.Handler do
   require Logger
   alias Servy.Conv
+  alias Servy.BearController
   import Servy.Plugins
 
   @pages_path Path.expand("../../pages", __DIR__)
@@ -20,7 +21,11 @@ defmodule Servy.Handler do
   end
 
   defp route(%Conv{method: "GET", path: "/bears"} = conv) do
-    %{conv | resp_body: "Teddy, Smokey, Paddington", status_code: 200}
+    BearController.index(conv)
+  end
+
+  defp route(%Conv{method: "GET", path: "/api/bears"} = conv) do
+    Servy.Api.BearController.index(conv)
   end
 
   defp route(%Conv{method: "GET", path: "/bears/new"} = conv) do
@@ -41,15 +46,16 @@ defmodule Servy.Handler do
   end
 
   defp route(%Conv{method: "GET", path: "/bears/" <> id} = conv) do
-    %{conv | resp_body: "Bear #{id}", status_code: 200}
+    bear_params = Map.put(conv.request_body, "id", id)
+    BearController.show(conv, bear_params)
   end
 
   defp route(%Conv{method: "DELETE", path: "/bears/" <> _id} = conv) do
-    %{conv | resp_body: "Bears must never be deleted!", status_code: 403}
+    BearController.delete(conv)
   end
 
   defp route(%Conv{method: "POST", path: "/bears"} = conv) do
-    %{conv | resp_body: "#{conv.request_body["name"]} created!", status_code: 201}
+    BearController.create(conv, conv.request_body)
   end
 
   defp route(%Conv{method: "GET", path: path} = conv) do
