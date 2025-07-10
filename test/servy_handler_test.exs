@@ -155,4 +155,23 @@ defmodule ServyHandlerTest do
     assert response =~ "content-length: 605"
     assert response =~ "[{\"hibernating\":true,\"type\":\"Brown\",\"name\":\"Teddy\",\"id\":1},{\"hibernating\":false,\"type\":\"Black\",\"name\":\"Smokey\",\"id\":2},{\"hibernating\":false,\"type\":\"Brown\",\"name\":\"Paddington\",\"id\":3},{\"hibernating\":true,\"type\":\"Grizzly\",\"name\":\"Scarface\",\"id\":4},{\"hibernating\":false,\"type\":\"Polar\",\"name\":\"Snow\",\"id\":5},{\"hibernating\":false,\"type\":\"Grizzly\",\"name\":\"Brutus\",\"id\":6},{\"hibernating\":true,\"type\":\"Black\",\"name\":\"Rosie\",\"id\":7},{\"hibernating\":false,\"type\":\"Brown\",\"name\":\"Roscoe\",\"id\":8},{\"hibernating\":true,\"type\":\"Polar\",\"name\":\"Iceman\",\"id\":9},{\"hibernating\":false,\"type\":\"Grizzly\",\"name\":\"Kenai\",\"id\":10}]"
   end
+
+  test "responds 200 to POST /api/bears" do
+    request = """
+    POST /api/bears HTTP/1.1
+    Host: example.com
+    Accept: */*
+    Content-Type: application/json\r
+    Content-Length: 21\r
+
+    {"name": "Breezly", "type": "Polar"}
+    """
+
+    response = Servy.Handler.handle(request)
+
+    assert response =~ "201 Created"
+    assert response =~ "content-type: application/json"
+    assert response =~ "content-length: 35"
+    assert response =~ "Created a Polar bear named Breezly!"
+  end
 end

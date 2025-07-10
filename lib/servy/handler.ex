@@ -28,6 +28,10 @@ defmodule Servy.Handler do
     Servy.Api.BearController.index(conv)
   end
 
+  defp route(%Conv{method: "POST", path: "/api/bears"} = conv) do
+    Servy.Api.BearController.create(conv)
+  end
+
   defp route(%Conv{method: "GET", path: "/bears/new"} = conv) do
     Path.join(@pages_path, "bears/new.html")
     |> File.read()

@@ -1,6 +1,8 @@
 defmodule Servy.Conv do
   defstruct method: "", path: "", resp_body: "", status_code: nil, request_body: nil, request_headers: nil, resp_headers: %{}
 
+  alias Poison.Parser
+
   def parse(request) do
     [top, request_body] = request |> String.split("\n\n")
     [request_line | header_lines] = top |> String.split("\n")
@@ -21,7 +23,11 @@ defmodule Servy.Conv do
   end
 
   def parse_request_body("application/x-www-form-urlencoded", request_body) do
-    request_body |> String.trim() |> URI.decode_query()
+    request_body |> URI.decode_query()
+  end
+
+  def parse_request_body("application/json", request_body) do
+    request_body |> Parser.parse!(%{})
   end
 
   def parse_request_body(_, _), do: %{}
