@@ -49,7 +49,7 @@ defmodule Servy.Handler do
     end
   end
 
-  defp route(%Conv{method: "GET", path: "/bears/" <> id} = conv) do
+  defp route(%Conv{method: "GET", path: "/bears/" <> id} = conv) when id != "new" do
     bear_params = Map.put(conv.request_body, "id", id)
     BearController.show(conv, bear_params)
   end
@@ -63,10 +63,49 @@ defmodule Servy.Handler do
   end
 
   defp route(%Conv{method: "GET", path: path} = conv) do
-    @pages_path
-    |> Path.join("#{path}.html")
-    |> File.read()
-    |> handle_file(conv)
+    html_path = Path.join(@pages_path, path <> ".html")
+    markdown_path = Path.join(@pages_path, path <> ".md")
+
+    case try_load_markdown(markdown_path) do
+      {:ok, body} ->
+        %{conv | resp_body: body, status_code: 200}
+
+      {:error, :enoent} ->
+        case try_load_html(html_path) do
+          {:ok, body} -> %{conv | resp_body: body, status_code: 200}
+          error -> handle_file(error, conv)
+        end
+
+      error -> handle_file(error, conv)
+    end
+  end
+
+  defp try_load_markdown(path) do
+    case File.read(path) do
+      {:ok, body} ->
+        {:ok, Earmark.as_html!(body)}
+
+      {:error, :enoent} ->
+        {:error, :enoent}
+
+      {:error, reason} ->
+        Logger.error("Error reading file: #{reason}")
+        {:error, reason}
+    end
+  end
+
+  defp try_load_html(path) do
+    case File.read(path) do
+      {:ok, body} ->
+        {:ok, body}
+
+      {:error, :enoent} ->
+        {:error, :enoent}
+
+      {:error, reason} ->
+        Logger.error("Error reading file: #{reason}")
+        {:error, reason}
+    end
   end
 
   defp handle_file({:ok, body}, conv) do

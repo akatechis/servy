@@ -102,7 +102,7 @@ defmodule ServyHandlerTest do
 
     """
 
-    assert Servy.Handler.handle(request) =~ "<h1>FAQ</h1>"
+    assert Servy.Handler.handle(request) =~ "Frequently Asked Questions"
   end
 
   test "responds 200 to GET /contact" do
