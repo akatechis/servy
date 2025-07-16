@@ -4,11 +4,12 @@ defmodule Servy.Conv do
   alias Poison.Parser
 
   def parse(request) do
-    [top, request_body] = request |> String.split("\n\n")
-    [request_line | header_lines] = top |> String.split("\n")
+    line_sep = String.match?(request, ~r/\r\n/) && "\r\n" || "\n"
+    [top, request_body] = request |> String.split(String.duplicate(line_sep, 2), parts: 2)
+    [request_line | header_lines] = top |> String.split(line_sep)
     [method, path, _] = request_line |> String.split(" ")
 
-    headers = parse_headers(header_lines)
+    headers = Servy.HttpUtils.parse_header_lines(header_lines)
     request_body = parse_request_body(headers["content-type"], request_body)
 
     %Servy.Conv{
@@ -32,21 +33,16 @@ defmodule Servy.Conv do
 
   def parse_request_body(_, _), do: %{}
 
-  def parse_headers(header_lines) do
-    Enum.reduce(header_lines, %{}, fn header_line, headers ->
-      [key, value] = header_line |> String.split(":", parts: 2)
-      Map.put(headers, String.downcase(key), String.trim(value))
-    end)
-  end
-
   def format_response(conv) do
     formatted_headers = format_headers(conv)
-    """
+    resp_text ="""
     HTTP/1.1 #{full_status(conv)}
     #{formatted_headers}
 
     #{conv.resp_body}
     """
+
+    String.replace(resp_text, "\r\n", "\n")
   end
 
   def full_status(%Servy.Conv{} = conv) do
@@ -55,7 +51,6 @@ defmodule Servy.Conv do
 
   def format_headers(%Servy.Conv{resp_headers: resp_headers} = conv) do
     resp_headers
-    |> Map.put_new("content-type", "text/plain")
     |> Map.put("content-length", byte_size(conv.resp_body))
     |> Enum.map(fn {key, value} -> "#{key}: #{value}" end)
     |> Enum.join("\n")
