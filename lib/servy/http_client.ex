@@ -1,9 +1,8 @@
 defmodule Servy.HttpClient do
   alias Servy.HttpResponse
 
-  def get(request) do
-    host = to_charlist("localhost")
-    {:ok, socket} = :gen_tcp.connect(host, 4000, [:binary, packet: :raw, active: false])
+  def get(host, port, request) do
+    {:ok, socket} = :gen_tcp.connect(to_charlist(host), port, [:binary, packet: :raw, active: false])
     :ok = :gen_tcp.send(socket, request)
 
     case :gen_tcp.recv(socket, 0) do

@@ -13,7 +13,7 @@ defmodule Mix.Tasks.RunClient do
 
     """
 
-    case Servy.HttpClient.get(request) do
+    case Servy.HttpClient.get("localhost", 4000, request) do
       {:ok, response} ->
         IO.puts("Response received:")
         IO.puts(inspect(response))
