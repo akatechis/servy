@@ -18,7 +18,9 @@ defmodule Servy.Conv do
       status_code: nil,
       request_headers: headers,
       request_body: request_body,
-      resp_headers: %{},
+      resp_headers: %{
+        "content-type" => "text/html"
+      },
       resp_body: ""
     }
   end

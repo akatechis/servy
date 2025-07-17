@@ -2,6 +2,7 @@ defmodule Servy.Handler do
   require Logger
   alias Servy.Conv
   alias Servy.BearController
+  alias Servy.VideoCam
   import Servy.Plugins
 
   @pages_path Path.expand("../../pages", __DIR__)
@@ -14,6 +15,31 @@ defmodule Servy.Handler do
     |> route
     |> track
     |> Conv.format_response()
+  end
+
+  defp route(%Conv{method: "GET", path: "/snapshots"} = conv) do
+    parent = self()
+
+    spawn(fn ->
+      snapshot1 = VideoCam.get_snapshot("cam-1")
+      send(parent, {:snapshot, snapshot1})
+    end)
+
+    spawn(fn ->
+      snapshot2 = VideoCam.get_snapshot("cam-2")
+      send(parent, {:snapshot, snapshot2})
+    end)
+
+    spawn(fn ->
+      snapshot3 = VideoCam.get_snapshot("cam-3")
+      send(parent, {:snapshot, snapshot3})
+    end)
+
+    snapshot1 = receive do {:snapshot, filename} -> filename end
+    snapshot2 = receive do {:snapshot, filename} -> filename end
+    snapshot3 = receive do {:snapshot, filename} -> filename end
+
+    %{ conv | status_code: 200, resp_body: inspect([snapshot1, snapshot2, snapshot3]) }
   end
 
   defp route(%Conv{method: "GET", path: "/wildthings"} = conv) do

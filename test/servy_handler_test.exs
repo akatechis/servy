@@ -175,4 +175,21 @@ defmodule ServyHandlerTest do
     assert response =~ "content-length: 35"
     assert response =~ "Created a Polar bear named Breezly!"
   end
+
+  test "responds 200 to GET /snapshots" do
+    request = """
+    GET /snapshots HTTP/1.1
+    Host: example.com
+    Accept: */*
+
+    """
+
+    response = Servy.Handler.handle(request)
+
+    assert response =~ "200 OK"
+    assert response =~ "content-type: text/html"
+    assert response =~ "cam-1-snapshot.jpg"
+    assert response =~ "cam-2-snapshot.jpg"
+    assert response =~ "cam-3-snapshot.jpg"
+  end
 end
