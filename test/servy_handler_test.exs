@@ -176,9 +176,9 @@ defmodule ServyHandlerTest do
     assert response =~ "Created a Polar bear named Breezly!"
   end
 
-  test "responds 200 to GET /snapshots" do
+  test "responds 200 to GET /sensors" do
     request = """
-    GET /snapshots HTTP/1.1
+    GET /sensors HTTP/1.1
     Host: example.com
     Accept: */*
 
@@ -188,8 +188,12 @@ defmodule ServyHandlerTest do
 
     assert response =~ "200 OK"
     assert response =~ "content-type: text/html"
-    assert response =~ "cam-1-snapshot.jpg"
-    assert response =~ "cam-2-snapshot.jpg"
-    assert response =~ "cam-3-snapshot.jpg"
+    assert response =~ "<h1>Sensors</h1>"
+    assert response =~ "<h2>Snapshots</h2>"
+    assert response =~ "<img src=\"cam-1-snapshot.jpg\""
+    assert response =~ "<img src=\"cam-2-snapshot.jpg\""
+    assert response =~ "<img src=\"cam-3-snapshot.jpg\""
+    assert response =~ "lat: \"29.0469 N\""
+    assert response =~ "lng: \"98.8667 W\""
   end
 end
