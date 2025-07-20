@@ -36,7 +36,14 @@ defmodule Servy.Conv do
   def parse_request_body(_, _), do: %{}
 
   def format_response(conv) do
+    # Lots of nonsense here, but I really don't like \r\n, and I need to remove them
+    # BEFORE calculating the content-length, or clients choke for some reason.
+
+    clean_resp_body = String.replace(conv.resp_body, "\r", "")
+    conv = Map.put(conv, :resp_body, clean_resp_body)
+
     formatted_headers = format_headers(conv)
+
     resp_text ="""
     HTTP/1.1 #{full_status(conv)}
     #{formatted_headers}
@@ -44,7 +51,7 @@ defmodule Servy.Conv do
     #{conv.resp_body}
     """
 
-    String.replace(resp_text, "\r\n", "\n")
+    String.replace(resp_text, "\r", "")
   end
 
   def full_status(%Servy.Conv{} = conv) do

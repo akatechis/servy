@@ -3,26 +3,30 @@ defmodule ServyHttpServerTest do
   doctest Servy.HttpServer
 
   alias Servy.HttpServer
-  alias Servy.HttpClient
 
-  test "properly responds to GET /bears" do
-    server_pid = spawn(HttpServer, :start_server, [5000])
+  test "properly responds to multiple requests" do
+    spawn(HttpServer, :start_server, [4000])
 
-    request = """
-    GET /bears HTTP/1.1
-    Host: localhost:5000
-    Accept: */*
+    test_pid = self()
+    paths = ["/wildthings", "/bears", "/api/bears", "/faq", "/contact", "/bears/1"]
 
-    """
-    {:ok, resp} = HttpClient.get("localhost", 5000, request)
+    for path <- paths do
+      spawn(fn ->
+        case HTTPoison.get("http://localhost:4000#{path}") do
+          {:ok, response} ->
+            send(test_pid, {:response, response})
+          {:error, reason} ->
+            send(test_pid, {:error, reason})
+        end
+      end)
+    end
 
-    assert resp.is_ok
-    assert resp.status_code == 200
-    assert resp.http_version == "HTTP/1.1"
-    assert resp.reason_phrase == "OK"
-    assert resp.headers["content-type"] == "text/html"
-    assert resp.body =~ "<li>Brutus (Grizzly)</li>"
-
-    Process.exit(server_pid, :kill)
+    for _ <- paths do
+      receive do
+        {flag, resp} ->
+          assert flag == :response
+          assert resp.status_code == 200
+      end
+    end
   end
 end

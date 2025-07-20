@@ -18,11 +18,11 @@ defmodule Servy.BearController do
     View.render_template(conv, "show.eex", 200, bear: bear)
   end
 
-  def create(%Conv{} = conv, %{"type" => _type, "name" => name}) do
-    %{conv | resp_body: "#{name} created!", status_code: 201}
+  def create(%Conv{} = conv, bear) do
+    View.render_template(conv, "bear_created.eex", 201, bear: bear)
   end
 
   def delete(%Conv{} = conv) do
-    %{conv | resp_body: "Bears must never be deleted!", status_code: 403}
+    View.render_template(conv, "bear_deleted.eex", 403)
   end
 end

@@ -110,11 +110,7 @@ defmodule Servy.Handler do
       {:ok, body} ->
         {:ok, Earmark.as_html!(body)}
 
-      {:error, :enoent} ->
-        {:error, :enoent}
-
       {:error, reason} ->
-        Logger.error("Error reading file: #{reason}")
         {:error, reason}
     end
   end
@@ -124,17 +120,14 @@ defmodule Servy.Handler do
       {:ok, body} ->
         {:ok, body}
 
-      {:error, :enoent} ->
-        {:error, :enoent}
-
       {:error, reason} ->
-        Logger.error("Error reading file: #{reason}")
         {:error, reason}
     end
   end
 
   defp handle_file({:ok, body}, conv) do
-    %{conv | resp_body: body, status_code: 200}
+    new_headers = Map.put(conv.resp_headers, "content-type", "text/html")
+    %{conv | resp_body: body, status_code: 200, resp_headers: new_headers}
   end
 
   defp handle_file({:error, :enoent}, conv) do

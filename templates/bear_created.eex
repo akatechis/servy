@@ -1,0 +1,5 @@
+<h1>Bear created</h1>
+
+<a href="/bears">Back to bears</a>
+
+<p><%= bear["name"] %> created!</p>

@@ -36,6 +36,6 @@ defmodule Servy.HttpServer do
   def write_response(response_txt, client_socket) do
     :ok = :gen_tcp.send(client_socket, response_txt)
     :gen_tcp.close(client_socket)
-    IO.puts("✅ Response sent!\n")
+    IO.puts("✅ Response sent, socket closed!\n")
   end
 end
