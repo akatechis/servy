@@ -1,6 +1,7 @@
 defmodule Servy.Plugins do
   require Logger
   alias Servy.Conv
+  alias Servy.PageNotFoundCounter
 
   def rewrite_path(%Conv{path: "/wildlife"} = conv) do
     %{conv | path: "/wildthings"}
@@ -18,7 +19,7 @@ defmodule Servy.Plugins do
   end
 
   def track(%Conv{path: path, status_code: 404} = conv) do
-    Logger.warning("[Warning] #{path} is on the loose!")
+    PageNotFoundCounter.bump_count(path)
     conv
   end
 

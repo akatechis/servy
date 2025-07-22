@@ -1,0 +1,21 @@
+defmodule PageNotFoundCounterTest do
+  use ExUnit.Case
+
+  alias Servy.PageNotFoundCounter, as: Counter
+
+  test "reports counts of missing path requests" do
+    Counter.start()
+
+    :ok = Counter.bump_count("/bigfoot")
+    :ok = Counter.bump_count("/nessie")
+    :ok = Counter.bump_count("/nessie")
+    :ok = Counter.bump_count("/bigfoot")
+    :ok = Counter.bump_count("/nessie")
+
+    assert Counter.get_count("/nessie") == 3
+    assert Counter.get_count("/bigfoot") == 2
+    assert Counter.get_count("/blablabla") == 0
+
+    assert Counter.get_counts == %{"/bigfoot" => 2, "/nessie" => 3}
+  end
+end

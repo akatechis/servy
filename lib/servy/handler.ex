@@ -2,6 +2,7 @@ defmodule Servy.Handler do
   require Logger
   alias Servy.Conv
   alias Servy.BearController
+  alias Servy.PledgeController
   alias Servy.VideoCam
   alias Servy.View
   import Servy.Plugins
@@ -16,6 +17,19 @@ defmodule Servy.Handler do
     |> route
     |> track
     |> Conv.format_response()
+  end
+
+  defp route(%Conv{method: "GET", path: "/404s"} = conv) do
+    counts = Servy.PageNotFoundCounter.get_counts()
+    %{conv | resp_body: inspect(counts), status_code: 200}
+  end
+
+  defp route(%Conv{method: "POST", path: "/pledges"} = conv) do
+    PledgeController.create(conv, conv.request_body)
+  end
+
+  defp route(%Conv{method: "GET", path: "/pledges"} = conv) do
+    PledgeController.index(conv)
   end
 
   defp route(%Conv{method: "GET", path: "/sensors"} = conv) do
