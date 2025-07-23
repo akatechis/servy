@@ -1,59 +1,44 @@
 defmodule Servy.PageNotFoundCounter do
+  use GenServer
 
   @initial_counts %{}
 
   def start do
-    pid = spawn(__MODULE__, :loop, [@initial_counts])
-    Process.register(pid, __MODULE__)
-    pid
+    GenServer.start(__MODULE__, @initial_counts, name: __MODULE__)
+  end
+
+  def init(init_arg) do
+    {:ok, init_arg}
   end
 
   # Client API
 
   def bump_count(path) do
-    send(__MODULE__, {self(), :bump_count, path})
-    receive do
-      { :response } -> :ok
-    end
+    GenServer.call(__MODULE__, {:bump_count, path})
   end
 
   def get_count(path) do
-    send(__MODULE__, {self(), :get_count, path})
-    receive do
-      { :response, count } -> count
-    end
+    GenServer.call(__MODULE__, {:get_count, path})
   end
 
   def get_counts do
-    send(__MODULE__, {self(), :get_counts})
-    receive do
-      { :response, counts } -> counts
-    end
+    GenServer.call(__MODULE__, :get_counts)
   end
 
   # Server API
 
-  def loop(counts) do
-    receive do
-      {sender, :bump_count, path} ->
-        new_counts = Map.update(counts, path, 1, fn (count) -> count + 1 end)
-        send sender, { :response }
-        IO.inspect(new_counts, label: "Counts")
-        loop(new_counts)
+  def handle_call({:bump_count, path}, _from, counts) do
+    new_counts = Map.update(counts, path, 1, fn (count) -> count + 1 end)
+    {:reply, :ok, new_counts}
+  end
 
-      {sender, :get_count, path} ->
-        count = Map.get(counts, path, 0)
-        send(sender, { :response, count })
-        loop(counts)
+  def handle_call({:get_count, path}, _from, counts) do
+    count = Map.get(counts, path, 0)
+    {:reply, count, counts}
+  end
 
-      {sender, :get_counts} ->
-        send(sender, { :response, counts})
-        loop(counts)
-
-      unknown_message ->
-        IO.puts("Unknown message: #{inspect(unknown_message)}")
-        loop(counts)
-    end
+  def handle_call(:get_counts, _from, counts) do
+    {:reply, counts, counts}
   end
 
 end

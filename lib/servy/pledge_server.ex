@@ -1,56 +1,54 @@
 defmodule Servy.PledgeServer do
-
+  use GenServer
   @server_name :pledge_server
+  @initial_state {[], 0}
 
   # Client API
 
   def start() do
     IO.puts "Starting Pledge Server..."
-    pid = spawn(__MODULE__, :listen_loop, [[], 0])
-    Process.register(pid, @server_name)
-    pid
+    GenServer.start(__MODULE__, @initial_state, name: @server_name)
+  end
+
+  def init(init_arg) do
+    {:ok, init_arg}
   end
 
   def create_pledge(name, amount) do
-    send @server_name, {self(), :create_pledge, name, amount}
-    receive do
-      {:response, id} -> id
-    end
+    GenServer.call(@server_name, {:create_pledge, name, amount})
   end
 
   def recent_pledges do
-    send @server_name, {self(), :recent_pledges}
-    receive do
-      {:response, pledges} -> pledges
-    end
+    GenServer.call(@server_name, :recent_pledges)
   end
 
   def total_pledged do
-    send @server_name, {self(), :total_pledged}
-    receive do
-      {:response, total} -> total
-    end
+    GenServer.call(@server_name, :total_pledged)
   end
 
-  # Server
+  def clear do
+    GenServer.cast(@server_name, :clear)
+  end
 
-  def listen_loop(state, total_pledged) do
-    receive do
-      {sender, :create_pledge, name, amount} ->
-        {:ok, id} = send_pledge_to_service(name, amount)
-        new_state = [ {name, amount} | Enum.take(state, 2) ]
+  def handle_cast(:clear, _state) do
+    {:noreply, {[], 0}}
+  end
 
-        send sender, {:response, id}
-        listen_loop(new_state, total_pledged + amount)
-      {sender, :recent_pledges} ->
-        send(sender, {:response, state})
-        listen_loop(state, total_pledged)
-      {sender, :total_pledged} ->
-        send sender, {:response, total_pledged}
-      unexpected ->
-        IO.puts "Unexpected message: #{inspect(unexpected)}"
-        listen_loop(state, total_pledged)
-    end
+  def handle_call({:create_pledge, name, amount}, _from, {pledges, total_pledged}) do
+    {:ok, id} = send_pledge_to_service(name, amount)
+
+    new_pledges = [ {name, amount} | Enum.take(pledges, 2) ]
+    new_total = total_pledged + amount
+
+    {:reply, id, {new_pledges, new_total} }
+  end
+
+  def handle_call(:recent_pledges, _from, {pledges, total_pledged}) do
+    {:reply, pledges, {pledges, total_pledged} }
+  end
+
+  def handle_call(:total_pledged, _from, {pledges, total_pledged}) do
+    {:reply, total_pledged, {pledges, total_pledged} }
   end
 
   defp send_pledge_to_service(_name, _amount) do
@@ -59,16 +57,3 @@ defmodule Servy.PledgeServer do
   end
 
 end
-
-# alias Servy.PledgeServer
-
-# Servy.PledgeServer.start()
-
-# IO.inspect PledgeServer.create_pledge("larry", 10)
-# IO.inspect PledgeServer.create_pledge("moe", 20)
-# IO.inspect PledgeServer.create_pledge("curly", 30)
-# IO.inspect PledgeServer.create_pledge("daisy", 40)
-# IO.inspect PledgeServer.create_pledge("grace", 50)
-
-# IO.inspect PledgeServer.recent_pledges(), label: "Recent Pledges"
-# IO.inspect PledgeServer.total_pledged(), label: "Total Pledged"
