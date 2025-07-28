@@ -12,6 +12,18 @@ defmodule Servy.Kickstarter do
     {:ok, server_pid}
   end
 
+  # Client API
+
+  def get_server_pid do
+    GenServer.call(__MODULE__, :get_server_pid)
+  end
+
+  # Server API
+
+  def handle_call(:get_server_pid, _from, state) do
+    {:reply, state, state}
+  end
+
   def handle_info({:EXIT, _pid, reason}, _state) do
     IO.puts("HTTP server exited (#{inspect(reason)}). Restarting...")
     server_pid = start_server()
