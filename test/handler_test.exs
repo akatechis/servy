@@ -29,7 +29,7 @@ defmodule HandlerTest do
   end
 
   test "responds 404 to GET /bigfoot" do
-    Servy.PageNotFoundCounter.start_link()
+    Servy.PageNotFoundCounter.start_link([])
 
     request = """
     GET /bigfoot HTTP/1.1
@@ -179,7 +179,7 @@ defmodule HandlerTest do
   end
 
   test "responds 200 to GET /sensors" do
-    Servy.SensorServer.start_link()
+    Servy.SensorServer.start_link([])
 
     request = """
     GET /sensors HTTP/1.1
@@ -194,9 +194,9 @@ defmodule HandlerTest do
     assert response =~ "content-type: text/html"
     assert response =~ "<h1>Sensors</h1>"
     assert response =~ "<h2>Snapshots</h2>"
-    assert response =~ "<img src=\"cam-1-snapshot.jpg\""
-    assert response =~ "<img src=\"cam-2-snapshot.jpg\""
-    assert response =~ "<img src=\"cam-3-snapshot.jpg\""
+    assert response =~ "<img src=\"cam-1-snapshot-"
+    assert response =~ "<img src=\"cam-2-snapshot-"
+    assert response =~ "<img src=\"cam-3-snapshot-"
     assert response =~ "lat: \"29.0469 N\""
     assert response =~ "lng: \"98.8667 W\""
   end

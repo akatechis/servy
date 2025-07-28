@@ -3,7 +3,8 @@ defmodule Servy.PageNotFoundCounter do
 
   @initial_counts %{}
 
-  def start_link do
+  def start_link(_arg) do
+    IO.puts "Starting Page Not Found Counter Server..."
     GenServer.start_link(__MODULE__, @initial_counts, name: __MODULE__)
   end
 
