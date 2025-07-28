@@ -3,6 +3,6 @@ defmodule Servy do
 
   def start(_type, _args) do
     IO.puts("Starting Servy Application...")
-    {:ok, supervisor} = Servy.Supervisor.start_link()
+    Servy.Supervisor.start_link()
   end
 end
