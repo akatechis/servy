@@ -1,4 +1,4 @@
-defmodule ServyHttpServerTest do
+defmodule HttpServerTest do
   use ExUnit.Case
   doctest Servy.HttpServer
 

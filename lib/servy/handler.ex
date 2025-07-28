@@ -3,7 +3,6 @@ defmodule Servy.Handler do
   alias Servy.Conv
   alias Servy.BearController
   alias Servy.PledgeController
-  alias Servy.VideoCam
   alias Servy.View
   import Servy.Plugins
 
@@ -33,24 +32,7 @@ defmodule Servy.Handler do
   end
 
   defp route(%Conv{method: "GET", path: "/sensors"} = conv) do
-    [
-      snapshot1,
-      snapshot2,
-      snapshot3,
-      bigfoot_location
-    ] = [
-      fn -> VideoCam.get_snapshot("cam-1") end,
-      fn -> VideoCam.get_snapshot("cam-2") end,
-      fn -> VideoCam.get_snapshot("cam-3") end,
-      fn -> Servy.Tracker.get_location("bigfoot") end
-    ] |> Enum.map(&Task.async(&1)) |> Enum.map(&Task.await(&1))
-
-    snapshots = [
-      snapshot1,
-      snapshot2,
-      snapshot3
-    ]
-
+    {snapshots, bigfoot_location} = Servy.SensorServer.get_sensor_data()
     location = inspect(bigfoot_location) |> String.replace("%", "")
     View.render_template(conv, "sensors.eex", 200, snapshots: snapshots, location: location)
   end

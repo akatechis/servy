@@ -4,7 +4,7 @@ defmodule PageNotFoundCounterTest do
   alias Servy.PageNotFoundCounter, as: Counter
 
   test "reports counts of missing path requests" do
-    Counter.start()
+    Counter.start_link()
 
     :ok = Counter.bump_count("/bigfoot")
     :ok = Counter.bump_count("/nessie")

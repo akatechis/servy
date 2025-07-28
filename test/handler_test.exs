@@ -1,4 +1,4 @@
-defmodule ServyHandlerTest do
+defmodule HandlerTest do
   use ExUnit.Case
   doctest Servy.Handler
 
@@ -29,6 +29,8 @@ defmodule ServyHandlerTest do
   end
 
   test "responds 404 to GET /bigfoot" do
+    Servy.PageNotFoundCounter.start_link()
+
     request = """
     GET /bigfoot HTTP/1.1
     Host: example.com
@@ -177,6 +179,8 @@ defmodule ServyHandlerTest do
   end
 
   test "responds 200 to GET /sensors" do
+    Servy.SensorServer.start_link()
+
     request = """
     GET /sensors HTTP/1.1
     Host: example.com

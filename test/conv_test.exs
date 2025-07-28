@@ -1,4 +1,4 @@
-defmodule ServyConvTest do
+defmodule ConvTest do
   use ExUnit.Case
   doctest Servy.Conv
 

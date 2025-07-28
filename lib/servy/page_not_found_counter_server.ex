@@ -3,8 +3,8 @@ defmodule Servy.PageNotFoundCounter do
 
   @initial_counts %{}
 
-  def start do
-    GenServer.start(__MODULE__, @initial_counts, name: __MODULE__)
+  def start_link do
+    GenServer.start_link(__MODULE__, @initial_counts, name: __MODULE__)
   end
 
   def init(init_arg) do
