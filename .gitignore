@@ -21,3 +21,6 @@ servy-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+# Ignore the ElixirLS directory.
+.elixir_ls/
