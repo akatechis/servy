@@ -1,10 +1,16 @@
 defmodule Servy.Conv do
-  defstruct method: "", path: "", resp_body: "", status_code: nil, request_body: nil, request_headers: nil, resp_headers: %{}
+  defstruct method: "",
+            path: "",
+            resp_body: "",
+            status_code: nil,
+            request_body: nil,
+            request_headers: nil,
+            resp_headers: %{}
 
   alias Poison.Parser
 
   def parse(request) do
-    line_sep = String.match?(request, ~r/\r\n/) && "\r\n" || "\n"
+    line_sep = (String.match?(request, ~r/\r\n/) && "\r\n") || "\n"
     [top, request_body] = request |> String.split(String.duplicate(line_sep, 2), parts: 2)
     [request_line | header_lines] = top |> String.split(line_sep)
     [method, path, _] = request_line |> String.split(" ")
@@ -44,7 +50,7 @@ defmodule Servy.Conv do
 
     formatted_headers = format_headers(conv)
 
-    resp_text ="""
+    resp_text = """
     HTTP/1.1 #{full_status(conv)}
     #{formatted_headers}
 

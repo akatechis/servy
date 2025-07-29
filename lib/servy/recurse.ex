@@ -6,6 +6,7 @@ defmodule Servy.Recurse do
   def map([head | tail], func) do
     [func.(head) | map(tail, func)]
   end
+
   def map([], _func) do
     []
   end

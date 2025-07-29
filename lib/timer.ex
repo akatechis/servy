@@ -10,6 +10,7 @@ defmodule Timer do
 
   def block_on_pids([pid | pids]) do
     :timer.sleep(300)
+
     if Process.alive?(pid) do
       block_on_pids([pid | pids])
     else

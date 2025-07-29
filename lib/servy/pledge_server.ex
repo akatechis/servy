@@ -6,7 +6,7 @@ defmodule Servy.PledgeServer do
   # Client API
 
   def start_link(_arg) do
-    IO.puts "Starting Pledge Server..."
+    IO.puts("Starting Pledge Server...")
     GenServer.start_link(__MODULE__, @initial_state, name: @server_name)
   end
 
@@ -37,23 +37,22 @@ defmodule Servy.PledgeServer do
   def handle_call({:create_pledge, name, amount}, _from, {pledges, total_pledged}) do
     {:ok, id} = send_pledge_to_service(name, amount)
 
-    new_pledges = [ {name, amount} | Enum.take(pledges, 2) ]
+    new_pledges = [{name, amount} | Enum.take(pledges, 2)]
     new_total = total_pledged + amount
 
-    {:reply, id, {new_pledges, new_total} }
+    {:reply, id, {new_pledges, new_total}}
   end
 
   def handle_call(:recent_pledges, _from, {pledges, total_pledged}) do
-    {:reply, pledges, {pledges, total_pledged} }
+    {:reply, pledges, {pledges, total_pledged}}
   end
 
   def handle_call(:total_pledged, _from, {pledges, total_pledged}) do
-    {:reply, total_pledged, {pledges, total_pledged} }
+    {:reply, total_pledged, {pledges, total_pledged}}
   end
 
   defp send_pledge_to_service(_name, _amount) do
     # Simulate sending pledge to an external service
     {:ok, "pledge-#{:rand.uniform(1000)}"}
   end
-
 end

@@ -37,5 +37,4 @@ defmodule Servy.Kickstarter do
     Process.register(server_pid, :http_server)
     server_pid
   end
-
 end

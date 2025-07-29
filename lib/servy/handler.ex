@@ -88,6 +88,7 @@ defmodule Servy.Handler do
     markdown_path = Path.join(@pages_path, path <> ".md")
 
     markdown_result = try_load_markdown(markdown_path)
+
     case markdown_result do
       {:ok, body} ->
         %{conv | resp_body: body, status_code: 200}
@@ -96,7 +97,8 @@ defmodule Servy.Handler do
         html_result = try_load_html(html_path)
         handle_file(html_result, conv)
 
-      error -> handle_file(error, conv)
+      error ->
+        handle_file(error, conv)
     end
   end
 

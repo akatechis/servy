@@ -17,7 +17,8 @@ defmodule ConvTest do
       "x-custom-header" => "CustomValue"
     }
 
-    formatted_headers = Servy.Conv.format_headers(%Servy.Conv{resp_headers: headers, resp_body: "<html></html>"})
+    formatted_headers =
+      Servy.Conv.format_headers(%Servy.Conv{resp_headers: headers, resp_body: "<html></html>"})
 
     assert formatted_headers =~ "content-type: text/html"
     assert formatted_headers =~ "content-length: 13"
